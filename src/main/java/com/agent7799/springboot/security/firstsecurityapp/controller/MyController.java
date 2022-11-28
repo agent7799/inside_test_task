@@ -3,18 +3,13 @@ package com.agent7799.springboot.security.firstsecurityapp.controller;
 import com.agent7799.springboot.security.firstsecurityapp.dto.MessageDTO;
 import com.agent7799.springboot.security.firstsecurityapp.model.Message;
 import com.agent7799.springboot.security.firstsecurityapp.security.JWTUtil;
-import com.agent7799.springboot.security.firstsecurityapp.security.PersonDetails;
 import com.agent7799.springboot.security.firstsecurityapp.services.MessageService;
 import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
-import java.net.http.HttpHeaders;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +30,9 @@ public class MyController {
 
     @PostMapping("/message")
     @ResponseBody
-    public Map<String, String> showUserInfo(HttpServletRequest httpServletRequest, @RequestBody MessageDTO messageDDTO) throws NotFoundException {
+    public List<String> showUserInfo(HttpServletRequest httpServletRequest, @RequestBody MessageDTO messageDDTO) throws NotFoundException {
         String authHeader = httpServletRequest.getHeader("Authorization");
         Message message = convertToMessage(messageDDTO);
-        System.out.println(("username from message: " + message.getUsername()));
-        System.out.println("message: " + message.getMessage());
 
         if (authHeader != null && !authHeader.isBlank() && authHeader.startsWith("Bearer_")) {
             String jwt = authHeader.substring(7);
@@ -47,21 +40,19 @@ public class MyController {
             if(jwt.equals(token)){
                 if(message.getMessage().equals("history 10")){
                     List<Message> historyList = messageService.loadMessageByUsername(message.getUsername());
-                    System.out.println("history: " + historyList);
-                    Map<String, String> map = new HashMap<>();
-                    for (Message m : historyList){
-                        map.put(m.getUsername(), m.getMessage());
+                    List<String> list = new ArrayList<>();
+                    for (int i = 0; i < Math.min(historyList.size(), 10); i++){
+                        list.add(historyList.get(i).getMessage());
                     }
-                    System.out.println(map.values().toArray().toString());
-                    return map;
+                    System.out.println(list);
+                    return list;
+                }else{
+                    messageService.saveMessage(message);
+                    return List.of("message saved", message.getMessage());
                 }
-
-                messageService.saveMessage(message);
-                System.out.println("message received" + message.getMessage());
-                return Map.of("status", "message received", "message text",message.getMessage());
             }
         }
-        return Map.of("status", "message saving error");
+        return List.of("message error");
     }
 
     public Message convertToMessage(MessageDTO messageDTO) {

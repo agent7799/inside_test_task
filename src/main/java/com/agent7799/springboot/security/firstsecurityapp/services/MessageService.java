@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,12 +24,13 @@ public class MessageService {
 
 
     public List<Message> loadMessageByUsername(String username) throws NotFoundException {
-        //List<Message> messages = new ArrayList<>();
-        Optional<List<Message>> messages = messageRepository.findAllByUsername(username);
+        Optional<List<Message>> messages = Optional.ofNullable(messageRepository.findAllByUsername(username));
         if (messages.isEmpty()){
             throw  new NotFoundException("Message Not Found!");
-        }else
-        return messages.get();
+        }else{
+
+            return messages.get();
+        }
     }
 
     @Transactional

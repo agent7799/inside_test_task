@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Integer> {
 
-    Optional<List<Message>> findAllByUsername(String username);
+    //Optional<List<Message>> findAllByUsername(String username);
 
-
+    List<Message> findAllByUsername(String username);
 }
