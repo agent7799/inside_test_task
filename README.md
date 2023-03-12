@@ -1,5 +1,9 @@
 # inside_test_task
-test task for Inside
+WEB Приложение, реализуюшее  аутентификацию сообщений с применением Java Web Token (JWT)
+
+
+
+
 ***
 http://localhost:8091/auth/login
 Этот эндпоинт проверяет пароль по БД и создает jwt токен , в токен записывает данные: name: "имя отправителя"
